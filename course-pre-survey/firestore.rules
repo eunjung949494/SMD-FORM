@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: vibe_survey
+    // Fields:
+    //   - course_type: string (required)
+    //   - job: string
+    //   - tools: list
+    //   - frequency: string
+    //   - ai_usage: string
+    //   - ai_tools: list
+    //   - expectations: string
+    //   - n8n_experience: string
+    //   - n8n_usecase: string
+    //   - n8n_level: string
+    //   - created_at: string (required, ISO 8601)
+    //
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "sungeuj9494@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isValidSurvey(data) {
+      return data.keys().hasAll(['course_type', 'created_at']) &&
+             data.course_type is string &&
+             data.created_at is string &&
+             (!('job' in data) || data.job is string) &&
+             (!('expectations' in data) || data.expectations is string);
+    }
+
+    function isValidParticipant(data) {
+      return data.keys().hasAll(['name', 'course_type', 'created_at']) &&
+             data.name is string &&
+             data.course_type is string &&
+             data.created_at is string;
+    }
+
+    match /vibe_survey/{surveyId} {
+      // Anyone can submit a survey
+      allow create: if isValidSurvey(request.resource.data);
+      
+      // Simplified access: Allow read for the dashboard (client-side password protected)
+      allow read: if true;
+      
+      // Allow delete for the dashboard
+      allow delete: if true;
+      
+      // No one can update surveys once submitted
+      allow update: if false;
+    }
+
+    match /participants/{participantId} {
+      // Allow education app to write selected participants
+      allow create, update: if isValidParticipant(request.resource.data);
+      // Allow dashboard to read participants
+      allow read: if true;
+      allow delete: if false;
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

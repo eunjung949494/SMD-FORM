@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "Participant": {
+      "title": "Participant",
+      "description": "A selected participant for a course",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "job": { "type": "string" },
+        "course_type": { "type": "string" },
+        "email": { "type": "string" },
+        "status": { "type": "string", "enum": ["selected", "notified"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "course_type", "created_at"]
+    },
+    "SurveyResponse": {
+      "title": "SurveyResponse",
+      "description": "A response to the course survey",
+      "type": "object",
+      "properties": {
+        "course_type": { "type": "string", "description": "The type of course (vibe or n8n)" },
+        "job": { "type": "string", "description": "The user's job" },
+        "tools": { "type": "array", "items": { "type": "string" }, "description": "Tools used by the user" },
+        "frequency": { "type": "string", "description": "Frequency of using external tools" },
+        "ai_usage": { "type": "string", "description": "AI usage experience" },
+        "ai_tools": { "type": "array", "items": { "type": "string" }, "description": "AI tools used" },
+        "expectations": { "type": "string", "description": "Expectations for the course" },
+        "n8n_experience": { "type": "string", "description": "N8N experience level" },
+        "n8n_usecase": { "type": "string", "description": "Desired N8N use cases" },
+        "n8n_level": { "type": "string", "description": "Expected N8N proficiency level" },
+        "created_at": { "type": "string", "format": "date-time", "description": "When the survey was submitted" }
+      },
+      "required": ["course_type", "created_at"]
+    }
+  },
+  "firestore": {
+    "/vibe_survey/{surveyId}": {
+      "schema": "SurveyResponse",
+      "description": "Collection of survey responses"
+    },
+    "/participants/{participantId}": {
+      "schema": "Participant",
+      "description": "Selected participants from the education app"
+    }
+  }
+}
